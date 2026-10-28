@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karang Gading | Next-Gen Validator Infrastructure</title>
+    <style>
+        :root {
+            --bg-color: #020408;
+            --surface-color: #0b111e;
+            --text-color: #f8fafc;
+            --primary-glow: #8b5cf6; /* Violet */
+            --secondary-glow: #06b6d4; /* Cyan */
+            --muted-text: #64748b;
+            --border-glow: rgba(139, 92, 246, 0.2);
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; scroll-behavior: smooth; }
+        
+        body {
+            font-family: 'Courier New', Courier, monospace, -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1.5rem 5%;
+            background: rgba(2, 4, 8, 0.8);
+            border-bottom: 2px solid rgba(6, 182, 212, 0.2);
+            position: sticky; top: 0; backdrop-filter: blur(12px); z-index: 1000;
+        }
+        .logo { font-size: 1.4rem; font-weight: 900; color: #fff; letter-spacing: 2px; text-shadow: 0 0 10px var(--secondary-glow); }
+        .logo span { color: var(--primary-glow); }
+        nav a { color: var(--text-color); text-decoration: none; margin-left: 2rem; font-size: 0.9rem; font-weight: bold; text-transform: uppercase; transition: 0.3s; }
+        nav a:hover { color: var(--secondary-glow); text-shadow: 0 0 8px var(--secondary-glow); }
+
+        .hero { padding: 10rem 5% 6rem 5%; text-align: left; max-width: 1200px; margin: 0 auto; position: relative; }
+        .hero::before { content: ''; position: absolute; top: 20%; right: 10%; width: 250px; height: 250px; background: var(--primary-glow); filter: blur(130px); opacity: 0.2; pointer-events: none; }
+        .hero h1 { font-size: 4rem; font-weight: 900; line-height: 1.1; margin-bottom: 2rem; color: #fff; text-transform: uppercase; }
+        .hero h1 span { background: linear-gradient(45deg, var(--secondary-glow), var(--primary-glow)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: 1.1rem; color: #94a3b8; margin-bottom: 3rem; max-width: 650px; font-family: sans-serif; }
+        
+        .btn { display: inline-block; background: linear-gradient(135deg, var(--primary-glow), #6d28d9); color: #fff; padding: 1rem 2.5rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; border-radius: 0px; border: 1px solid var(--secondary-glow); box-shadow: 4px 4px 0px var(--secondary-glow); transition: 0.2s; cursor: pointer; }
+        .btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px var(--secondary-glow); }
+
+        .live-status { max-width: 1200px; margin: 0 auto 4rem auto; padding: 0 5%; }
+        .status-bar { background: var(--surface-color); border-left: 4px solid var(--secondary-glow); padding: 1rem; display: flex; gap: 2rem; font-size: 0.85rem; align-items: center; }
+        .pulse-icon { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; display: inline-block; animation: pulse 1.5s infinite; }
+
+        .stats { max-width: 1200px; margin: 0 auto; padding: 0 5% 6rem 5%; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+        .stat-item { background: var(--surface-color); border: 1px solid rgba(255,255,255,0.05); padding: 2rem; position: relative; }
+        .stat-item h2 { font-size: 3rem; color: var(--secondary-glow); font-weight: 900; margin-bottom: 0.5rem; }
+        .stat-item p { color: var(--muted-text); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; }
+
+        .services { padding: 6rem 5%; max-width: 1200px; margin: 0 auto; }
+        .section-title { font-size: 2.5rem; text-transform: uppercase; margin-bottom: 4rem; letter-spacing: 2px; position: relative; }
+        .section-title span { color: var(--secondary-glow); }
+        .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+        .card { background: var(--surface-color); border: 1px solid var(--border-glow); padding: 3rem 2rem; transition: 0.3s; position: relative; }
+        .card::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 3px; background: var(--secondary-glow); transition: 0.3s; }
+        .card:hover { border-color: var(--secondary-glow); transform: translateY(-5px); }
+        .card:hover::after { width: 100%; }
+        .card h3 { font-size: 1.4rem; margin-bottom: 1.5rem; color: #fff; text-transform: uppercase; }
+        .card p { color: #94a3b8; font-size: 0.9rem; font-family: sans-serif; line-height: 1.8; }
+        
+        .card:nth-child(1) { grid-column: span 2; }
+        .card:nth-child(3) { grid-column: span 3; }
+
+        .install { padding: 6rem 5%; background: rgba(11, 17, 30, 0.4); border-top: 1px solid rgba(255,255,255,0.05); }
+        .install-container { max-width: 900px; margin: 0 auto; }
+        .terminal-window { background: #010204; border: 1px solid #334155; border-radius: 8px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
+        .terminal-header { background: #1e293b; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+        .dot.red { background: #ef4444; } .dot.yellow { background: #f59e0b; } .dot.green { background: #10b981; }
+        .terminal-title { margin-left: auto; margin-right: auto; font-size: 0.8rem; color: #94a3b8; }
+        .code-box { padding: 2rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+        .code-text { color: #38bdf8; font-size: 0.95rem; white-space: nowrap; overflow-x: auto; }
+        .code-text::before { content: "$ "; color: var(--primary-glow); }
+        .copy-btn { background: #1e293b; border: 1px solid #475569; color: #fff; padding: 0.5rem 1.2rem; cursor: pointer; font-family: monospace; transition: 0.2s; }
+        .copy-btn:hover { background: var(--secondary-glow); color: #000; border-color: var(--secondary-glow); }
+
+        .contact { padding: 6rem 5%; max-width: 700px; margin: 0 auto; }
+        .contact form { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 3rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .form-group.full-width { grid-column: span 2; }
+        .form-group label { font-size: 0.75rem; color: var(--secondary-glow); text-transform: uppercase; letter-spacing: 1px; }
+        .form-group input, .form-group textarea { background: #010204; border: 1px solid #334155; padding: 1rem; color: #fff; font-family: monospace; font-size: 0.9rem; transition: 0.3s; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--primary-glow); box-shadow: 0 0 10px rgba(139, 92, 246, 0.3); }
+        .contact .btn { grid-column: span 2; justify-self: start; margin-top: 1rem; }
+
+        footer { text-align: center; padding: 4rem 5%; color: var(--muted-text); font-size: 0.8rem; border-top: 1px solid rgba(255,255,255,0.05); letter-spacing: 1px; }
+
+        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+
+        @media (max-width: 900px) {
+            .services-grid { grid-template-columns: 1fr; }
+            .card:nth-child(1), .card:nth-child(3) { grid-column: span 1; }
+            .contact form { grid-template-columns: 1fr; }
+            .form-group.full-width { grid-column: span 1; }
+            .contact .btn { grid-column: span 1; }
+            .hero h1 { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">KARANG GADING<span>//</span></div>
+        <nav>
+            <a href="#about">About</a>
+            <a href="#services">Services</a>
+            <a href="#install">Core.sh</a>
+            <a href="#contact">Inquiry</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero" id="about">
+            <h1>Resilient & Secure <br><span>Node Infrastructure</span></h1>
+            <p>Karang Gading delivers robust validation architectures, continuous multi-cloud uptime, and next-generation sentry systems for global decentralized networks.</p>
+            <a href="#services" class="btn">Initialize System</a>
+        </section>
+
+        <div class="live-status">
+            <div class="status-bar">
+                <div><span class="pulse-icon"></span> LIVE BACKEND SYSTEMS</div>
+                <div style="color: var(--secondary-glow);">NETWORK: OPERATIONAL</div>
+                <div style="margin-left: auto; color: var(--muted-text);">LOC: GLOBAL CLUSTERS</div>
+            </div>
+        </div>
+
+        <section class="stats">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h2>99.99%</h2>
+                    <p>Proven Uptime</p>
+                </div>
+                <div class="stat-item">
+                    <h2>24/7/365</h2>
+                    <p>Matrix Monitoring</p>
+                </div>
+                <div class="stat-item">
+                    <h2>0%</h2>
+                    <p>Slashing History</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="services" id="services">
+            <h2 class="section-title">Core <span>Infrastructure Services</span></h2>
+            <div class="services-grid">
+                <div class="card">
+                    <h3>Enterprise Validation</h3>
+                    <p>Securing high-throughput institutional public ledgers and testnets using multi-layered hardware configurations and strict hardware security modules.</p>
+                </div>
+                <div class="card">
+                    <h3>Sentry Protection Loops</h3>
+                    <p>Mitigating severe distributed denial-of-service (DDoS) vectors by filtering raw peer-to-peer traffic via outer defense proxy nodes.</p>
+                </div>
+                <div class="card">
+                    <h3>Dedicated RPC Endpoints</h3>
+                    <p>Highly optimized, geo-distributed RPC infrastructure providing rapid data querying and low-latency blocks processing for Web3 engineering teams.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="install" id="install">
+            <div class="install-container">
+                <h2 class="section-title">Deploy a <span>Karang Gading Node</span></h2>
+                <p style="color: var(--muted-text); margin-bottom: 2rem; font-family: sans-serif;">Execute our official, verified setup script on your Ubuntu 24.04 LTS VPS instance to synchronize instantly.</p>
+                
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                        <div class="terminal-title">bash — node_deploy.sh</div>
+                    </div>
+                    <div class="code-box">
+                        <div class="code-text" id="nodeCommand">wget -qO- https://rpc.karanggading.cloud/install.sh | bash</div>
+                        <button class="copy-btn" onclick="copyCode()">COPY</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="contact" id="contact">
+            <h2 class="section-title">Get in <span>Touch</span></h2>
+            <p style="color: var(--muted-text); font-family: sans-serif;">Partner with us or inquire about our validator integration capabilities.</p>
+            
+            <form onsubmit="event.preventDefault(); alert('Message sent successfully!');">
+                <div class="form-group">
+                    <label for="name">Company / Project Name</label>
+                    <input type="text" id="name" required placeholder="e.g., Canton Network">
+                </div>
+                <div class="form-group">
+                    <label for="email">Business Email</label>
+                    <input type="email" id="email" required placeholder="e.g., tech@project.io">
+                </div>
+                <div class="form-group full-width">
+                    <label for="message">Message</label>
+                    <textarea id="message" rows="5" required placeholder="Tell us about your infrastructure needs..."></textarea>
+                </div>
+                <button type="submit" class="btn">Send Inquiry</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>[!] &copy; 2026 Karang Gading Technology. All rights reserved. // SYSTEM ROOT</p>
+    </footer>
+
+    <script>
+        function copyCode() {
+            var text = document.getElementById("nodeCommand").innerText;
+            navigator.clipboard.writeText(text).then(function() {
+                alert("Terminal command copied successfully!");
+            });
+        }
+    </script>
+</body>
+</html>
